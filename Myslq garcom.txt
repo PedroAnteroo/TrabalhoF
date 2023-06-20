@@ -1,0 +1,27 @@
+create database Restaurante; -- criar database --
+
+use Restaurante; -- usar database -- 
+
+select * from garcom; -- Busca da tabela garcom --
+
+create table garcom(  -- Criacao da tabela garcom --
+nome varchar (100) not null,
+cpf varchar (100) not null,
+dataNascimento varchar (100) not null,
+email varchar (100) not null,
+telefone double not null,
+sexo varchar (100) not null,
+salarioFixo double not null,
+id_garcom int not null,
+primary key (id_garcom)
+);
+
+insert into garcom values ('cleber', '12333443', '12/12/121', 'cleber@hotemail.com', '31944325555','M', '2000', 2); -- Insercao de valores na tabela -- 
+
+drop table garcom; -- Excluir tabela -- 
+
+delete from garcom where id_garcom = 2; -- Remover/excluir coluna de valores da tabela -- 
+
+update garcom set nome = 'cleber', email = 'cleber@gmail.com' where id_garcom = 2; -- Alteracao de valores --
+
+select * from garcom where nome = 'cleber'; -- selecionar específico usando nome --

@@ -1,0 +1,26 @@
+CREATE TABLE mesa 
+( 
+ situacao VARCHAR (100) NOT NULL,  -- Situacao = (livre, ocupada, reservada) -- Criacao da tabela mesa --
+ cap_max INT NOT NULL,  
+ id_mesa INT PRIMARY KEY,  
+ primary key (id_mesa)
+); 
+
+CREATE TABLE atende(
+id_garcom int primary key,
+id_mesa int primary key
+);
+
+insert into mesa values ('livre', '5', 1); -- Insercao de valores na tabela --
+
+drop table mesa; -- Excluir tabela -- 
+
+delete from mesa where id_mesa = 1; -- Remover/excluir coluna de valores da tabela -- 
+
+update mesa set cap_max = '1' where id_mesa = 1; -- Alteracao de valores --
+
+select * from mesa where id_mesa = 1; -- busca usand numero da mesa -- 
+
+select * from mesa where cap_max >= 4; -- busca cap max da mesa--
+
+update mesa set situacao = 'ocupado' where id_mesa = 4; -- atuazar situacao da mesa --
