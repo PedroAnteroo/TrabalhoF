@@ -7,183 +7,122 @@ import java.util.Scanner;
 public class Main {
     static Connection connection = null;
     static Scanner ler = new Scanner(System.in);
-    static Scanner nomeScanner = new Scanner(System.in);
 
-    public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        int choice;
+    public static void main(String[] args) throws Exception {
+        int linha;
 
         do {
-            System.out.println("Selecione uma opção:");
-            System.out.println("1. Inserir Garçom");
-            System.out.println("2. Remover Garçom");
-            System.out.println("3. Buscar Garçom");
-            System.out.println("4. Alterar Garçom");
-            System.out.println("0. Sair");
+            Menu();
+            linha = ler.nextInt();
+            ler.nextLine();
 
-            choice = ler.nextInt();
-            ler.nextLine(); // Limpar o buffer de entrada
-
-            switch (choice) {
+            switch (linha) {
                 case 1:
                     inserirGarcom();
                     break;
                 case 2:
-                    removerGarcom();
+                    removerGarcomPeloEmail();
                     break;
                 case 3:
-                    buscarGarcom();
+                    buscarGarcomPeloEmail();
                     break;
                 case 4:
                     alterarGarcom();
                     break;
+                case 5:
+                    calcularMediaSalarioFixo();
+                    break;
                 case 0:
-                    System.out.println("Saindo...");
+                    System.out.println("Finalizado");
                     break;
                 default:
-                    System.out.println("Opção inválida!");
+                    System.out.println("ERRO!");
                     break;
             }
 
-            System.out.println(); // Nova linha para separar as iterações
-        } while (choice != 0);
-    }
-
-    private static void inserirGarcom() throws SQLException, ClassNotFoundException {
-        int id_garcom;
-        String nome, cpf, email, sexo, dataNascimento;
-        double telefone, salarioFixo;
-
-        System.out.println("Digite os dados do Garçom");
-
-        System.out.println("Digite o nome");
-        nome = ler.nextLine();
-        System.out.println("Digite o CPF");
-        cpf = ler.nextLine();
-        System.out.println("Digite a data de nascimento");
-        dataNascimento = ler.nextLine();
-        System.out.println("Digite o email");
-        email = ler.nextLine();
-        System.out.println("Digite o telefone");
-        telefone = ler.nextDouble();
-        System.out.println("Digite o sexo");
-        sexo = ler.next();
-        System.out.println("Digite o salario fixo");
-        salarioFixo = ler.nextDouble();
-        System.out.println("Digite o ID");
-        id_garcom = ler.nextInt();
-
-        Garcom g = new Garcom(nome, cpf, dataNascimento, email, telefone, sexo, salarioFixo, id_garcom);
-        inserirGarcom(g);
-    }
-
-    private static void removerGarcom() throws SQLException, ClassNotFoundException {
-        System.out.println("Digite o email do garçom que deseja remover:");
-        String emailGarcomRemover = ler.next();
-
-        try {
-            removerGarcomPeloEmail(emailGarcomRemover);
-            System.out.println("Garçom removido com sucesso");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static void buscarGarcom() throws SQLException, ClassNotFoundException {
-        System.out.println("Digite o email do garçom que você deseja buscar");
-        String emailGarcomBuscado = ler.next();
-
-        Garcom gEncontrado = null;
-        try {
-            gEncontrado = buscarGarcomPeloEmail(emailGarcomBuscado);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        if (gEncontrado == null) {
-            System.out.println("Garçom não encontrado");
-        } else {
-            System.out.println("\nNOME: "+ gEncontrado.getNome() );
-            System.out.println("CPF: "+ gEncontrado.getCpf());
-            System.out.println("DATANASCIMENTO: "+ gEncontrado.getDataNascimento());
-            System.out.println("EMAIL: "+ gEncontrado.getEmail());
-            System.out.println("TELEFONE: "+ gEncontrado.getTelefone());
-            System.out.println("SEXO: "+ gEncontrado.getSexo());
-            System.out.println("SALARIO FIXO: "+ gEncontrado.getSalarioFixo());
-            System.out.println("ID: "+ gEncontrado.getId_garcom());
-
             System.out.println();
-        }
+        } while (linha != 0);
     }
 
-    private static void alterarGarcom() throws SQLException, ClassNotFoundException {
-        System.out.println("Digite o email do garçom que deseja alterar:");
-        String emailGarcomAlterar = ler.next();
-
-        Garcom gEncontrado = null;
+    private static void Menu() {
+        System.out.println("Opções do Garçom:");
+        System.out.println("1) Inserir");
+        System.out.println("2) Remover");
+        System.out.println("3) Buscar");
+        System.out.println("4) Alterar");
+        System.out.println("5) Calcular Média do Salario");
+        System.out.println("Digite 0 para Finalizar");
+    }
+    //CALCULAR MEDIA
+    private static void calcularMediaSalarioFixo() throws SQLException {
         try {
-            gEncontrado = buscarGarcomPeloEmail(emailGarcomAlterar);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            connection = ConexaoDB.getInstance();
 
-        if (gEncontrado == null) {
-            System.out.println("Garçom não encontrado");
-        } else {
-            System.out.println("Digite os novos dados do garçom:");
+            String sql = "SELECT AVG(salarioFixo) AS mediaSalarioFixo FROM garcom";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            ResultSet resultado = stmt.executeQuery();
 
-            System.out.println("NOME:");
-            String nome = ler.next();
-            ler.nextLine();
-            System.out.println("CPF:");
-            String cpf = ler.nextLine();
-            System.out.println("DataNascimento");
-            String dataNascimento = ler.nextLine();
-            System.out.println("EMAIL:");
-            String email = ler.nextLine();
-            System.out.println("TELEFONE:");
-            double telefone = ler.nextDouble();
-            System.out.println("SEXO");
-            String sexo = ler.next();
-            System.out.println("SalarioFixo");
-            double salarioFixo = ler.nextDouble();
-            System.out.println("ID:");
-            int id_garcom = Integer.parseInt(ler.next());
-            ler.nextLine();
-
-            Garcom gDadosAtualizados = new Garcom(nome, cpf, dataNascimento, email, telefone, sexo, salarioFixo, id_garcom);
-            try {
-                alterarGarcom(gDadosAtualizados);
-                System.out.println("Garçom alterado com sucesso");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            if (resultado.next()) {
+                double mediaSalarioFixo = resultado.getDouble("mediaSalarioFixo");
+                System.out.println("Média de Salário: " + mediaSalarioFixo);
             }
+            resultado.close();
+            stmt.close();
+        } catch (Exception e) {
+            System.out.println("Erro no calculo da Media!");
+            e.printStackTrace();
         }
     }
-
-    private static void inserirGarcom(Garcom g) throws SQLException, ClassNotFoundException {
+    //INSERIR
+    private static void inserirGarcom() throws SQLException {
         try {
             connection = ConexaoDB.getInstance();
             String sql = "INSERT INTO garcom (id_garcom, nome, cpf, dataNascimento, email, telefone, sexo, salarioFixo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, g.getId_garcom());
-            stmt.setString(2, g.getNome());
-            stmt.setString(3, g.getCpf());
-            stmt.setString(4, g.getDataNascimento());
-            stmt.setString(5, g.getEmail());
-            stmt.setDouble(6, g.getTelefone());
-            stmt.setString(7, g.getSexo());
-            stmt.setDouble(8, g.getSalarioFixo());
+
+            System.out.println("Informe o ID do garçom: ");
+            int id_garcom = ler.nextInt();
+            ler.nextLine();
+            System.out.println("Informe o Nome do garçom: ");
+            String nome = ler.nextLine();
+            System.out.println("Informe o CPF do garçom: ");
+            String cpf = ler.nextLine();
+            System.out.println("Informe a data de nascimento do garçom: ");
+            String dataNascimento = ler.nextLine();
+            System.out.println("Informe o email do garçom: ");
+            String email = ler.nextLine();
+            System.out.println("Informe o telefone do garçom: ");
+            String telefone = ler.nextLine();
+            System.out.println("Informe o sexo do garçom: ");
+            String sexo = ler.nextLine();
+            System.out.println("Informe o salário fixo do garçom: ");
+            double salarioFixo = ler.nextDouble();
+
+            stmt.setInt(1, id_garcom);
+            stmt.setString(2, nome);
+            stmt.setString(3, cpf);
+            stmt.setString(4, dataNascimento);
+            stmt.setString(5, email);
+            stmt.setString(6, telefone);
+            stmt.setString(7, sexo);
+            stmt.setDouble(8, salarioFixo);
             stmt.executeUpdate();
+
             stmt.close();
+            System.out.println("Garçom cadastrado com sucesso!");
         } catch (Exception e) {
             System.out.println("Não foi possível cadastrar o Garçom");
             e.printStackTrace();
         }
-    }
 
-    public static void removerGarcomPeloEmail(String emailDoGarcomQueSeraRemovido) throws Exception {
+    }
+    //REMOVER
+    public static void removerGarcomPeloEmail() throws Exception {
         connection = ConexaoDB.getInstance();
         String sql = "DELETE FROM garcom WHERE email LIKE ?";
+
+        System.out.println("Informe o email do garçom que deseja remover: ");
+        String emailDoGarcomQueSeraRemovido = ler.nextLine();
 
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, emailDoGarcomQueSeraRemovido);
@@ -191,54 +130,100 @@ public class Main {
         stmt.execute();
         stmt.close();
     }
-
-    public static Garcom buscarGarcomPeloEmail(String emailBuscado) throws Exception {
+    //BUSCAR
+    public static void buscarGarcomPeloEmail() throws Exception {
         connection = ConexaoDB.getInstance();
 
         String sql = "SELECT * FROM garcom WHERE email LIKE ?";
 
+        System.out.println("Informe o email do garçom que deseja buscar: ");
+        String emailBuscado = ler.nextLine();
+
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, emailBuscado);
         ResultSet resultado = stmt.executeQuery();
-        Garcom g = null;
 
         if (resultado.next()) {
-            g = new Garcom(
-                    resultado.getString("nome"),
-                    resultado.getString("cpf"),
-                    resultado.getString("dataNascimento"),
-                    resultado.getString("email"),
-                    resultado.getDouble("telefone"),
-                    resultado.getString("sexo"),
-                    resultado.getDouble("salarioFixo"),
-                    resultado.getInt("id_garcom"));
+            int id_garcom = resultado.getInt("id_garcom");
+            String nome = resultado.getString("nome");
+            String cpf = resultado.getString("cpf");
+            String dataNascimento = resultado.getString("dataNascimento");
+            String email = resultado.getString("email");
+            String telefone = resultado.getString("telefone");
+            String sexo = resultado.getString("sexo");
+            double salarioFixo = resultado.getDouble("salarioFixo");
+
+            System.out.println("Garçom encontrado:");
+            System.out.println("ID: " + id_garcom);
+            System.out.println("Nome: " + nome);
+            System.out.println("CPF: " + cpf);
+            System.out.println("Data de Nascimento: " + dataNascimento);
+            System.out.println("Email: " + email);
+            System.out.println("Telefone: " + telefone);
+            System.out.println("Sexo: " + sexo);
+            System.out.println("Salário Fixo: " + salarioFixo);
+        } else {
+            System.out.println("Garçom não encontrado!");
         }
 
         resultado.close();
         stmt.close();
-
-        return g;
     }
-
-    public static void alterarGarcom(Garcom gSendoAlterado) throws Exception {
+    //ALTERAR
+    public static void alterarGarcom() throws Exception {
         connection = ConexaoDB.getInstance();
 
-        String sql = "UPDATE garcom SET nome = ?, cpf = ?, dataNascimento = ?, email = ?, telefone = ?, sexo = ?, salarioFixo = ?, id_garcom = ? WHERE id_garcom = ?";
+        System.out.println("Digite o email do garçom que deseja alterar: ");
+        String emailGarcomAlterar = ler.nextLine();
 
+        String sql = "SELECT * FROM garcom WHERE email LIKE ?";
         PreparedStatement stmt = connection.prepareStatement(sql);
-        stmt.setString(1, gSendoAlterado.getNome());
-        stmt.setString(2, gSendoAlterado.getCpf());
-        stmt.setString(3, gSendoAlterado.getDataNascimento());
-        stmt.setString(4, gSendoAlterado.getEmail());
-        stmt.setDouble(5, gSendoAlterado.getTelefone());
-        stmt.setString(6, gSendoAlterado.getSexo());
-        stmt.setDouble(7, gSendoAlterado.getSalarioFixo());
-        stmt.setInt(8, gSendoAlterado.getId_garcom());
-        stmt.setInt(9, gSendoAlterado.getId_garcom());
+        stmt.setString(1, emailGarcomAlterar);
+        ResultSet resultado = stmt.executeQuery();
 
+        if (resultado.next()) {
+            int id_garcom = resultado.getInt("id_garcom");
+            String nome = resultado.getString("nome");
+            String cpf = resultado.getString("cpf");
+            String dataNascimento = resultado.getString("dataNascimento");
+            String email = resultado.getString("email");
+            String telefone = resultado.getString("telefone");
+            String sexo = resultado.getString("sexo");
+            double salarioFixo = resultado.getDouble("salarioFixo");
 
+            System.out.println("Informe o novo nome do garçom: ");
+            nome = ler.nextLine();
+            System.out.println("Informe o novo CPF do garçom: ");
+            cpf = ler.nextLine();
+            System.out.println("Informe a nova data de nascimento do garçom: ");
+            dataNascimento = ler.nextLine();
+            System.out.println("Informe o novo telefone do garçom: ");
+            telefone = ler.nextLine();
+            System.out.println("Informe o novo sexo do garçom: ");
+            sexo = ler.nextLine();
+            System.out.println("Informe o novo email:");
+            email = ler.nextLine();
+            System.out.println("Informe o novo salário fixo do garçom: ");
+            salarioFixo = ler.nextDouble();
 
-        stmt.execute();
+            sql = "UPDATE garcom SET nome = ?, cpf = ?, dataNascimento = ?, telefone = ?, sexo = ?, email = ?, salarioFixo = ? WHERE id_garcom = ?";
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, nome);
+            stmt.setString(2, cpf);
+            stmt.setString(3, dataNascimento);
+            stmt.setString(4, telefone);
+            stmt.setString(5, sexo);
+            stmt.setString(6, email);
+            stmt.setDouble(7, salarioFixo);
+            stmt.setInt(8, id_garcom);
+            stmt.executeUpdate();
+
+            System.out.println("Garçom alterado com sucesso!");
+        } else {
+            System.out.println("Garçom não encontrado!");
+        }
+
+        resultado.close();
         stmt.close();
     }
 }
